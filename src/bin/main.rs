@@ -1,19 +1,13 @@
-use axum::{
-    routing::get,
-    Router,
-};
-use http::StatusCode;
+use std::net::{SocketAddr, TcpListener};
 
-async fn health_check() -> StatusCode {
-    StatusCode::OK
-}
+use zero2prod::run;
 
 #[tokio::main]
-async fn main() -> Result<(), hyper::Error> {
-    let app = Router::new()
-        .route("/health_check", get(health_check));
+async fn main() { // -> Result<(), hyper::Error> {
 
-    axum::Server::bind(&"0.0.0.0:3000".parse().unwrap())
-        .serve(app.into_make_service())
-        .await
+    // TCP listener
+    let addr = SocketAddr::from(([127, 0, 0, 1], 3000));
+    let listener = TcpListener::bind(&addr).unwrap();
+
+    run(listener).await.unwrap()
 }
