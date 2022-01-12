@@ -1,7 +1,6 @@
-use std::net::{SocketAddr, TcpListener};
+use std::net::{TcpListener};
 
 use axum::{
-    body::Bytes,
     Router,
 };
 use http::StatusCode;
