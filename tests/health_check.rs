@@ -1,6 +1,8 @@
 use std::{
     net::{SocketAddr, TcpListener},
 };
+use sqlx::{Connection, Row, SqliteConnection};
+use zero2prod::configuration::get_configuration;
 
 #[tokio::test]
 async fn health_check_works() {
@@ -27,6 +29,12 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
         .await
         .expect("Failed to spawn app");
 
+    let configuration = get_configuration().expect("Failed to read configuration.");
+    let connection_string = configuration.database.connection_string();
+    let mut connection = SqliteConnection::connect(&connection_string)
+        .await
+        .expect("Failed to connect to sqlite.");
+
     let client = reqwest::Client::new();
 
     // Act 
@@ -42,6 +50,15 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
 
     // Assert
     assert_eq!(response.status().as_u16(), 200);
+
+    let saved = sqlx::query("SELECT email, name FROM subscriptions",)
+        .fetch_one(&mut connection)
+        .await
+        .expect("Failed to fetch saved subscription.");
+    let email: &str = saved.get("email");
+    let name: &str = saved.get("name");
+    assert_eq!(email, "ursula_le_guin@gmail.com");
+    assert_eq!(name, "le guin");
 }
 
 #[tokio:: test] 
@@ -97,7 +114,7 @@ async fn serve() -> Result<SocketAddr, Box<dyn std::error::Error>> {
     let listener = TcpListener::bind(&addr)?;
     let addr = listener.local_addr()?;
 
-    tokio::spawn(async move { zero2prod::run(listener).await });
+    tokio::spawn(async move { zero2prod::startup::run(listener).await });
 
     Ok(addr)
 }
