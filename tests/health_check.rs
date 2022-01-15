@@ -9,7 +9,10 @@ use zero2prod::db::{
     models::Subscriber,
     DbPool,
 };
-use zero2prod::configuration::get_configuration;
+use zero2prod::configuration::{
+    get_configuration,
+    DatabaseSettings,
+};
 
 #[tokio::test]
 async fn health_check_works() {
@@ -104,11 +107,9 @@ struct Context {
 
 impl Context {
     async fn try_new() -> Result<Self, Box<dyn std::error::Error>> {
-        let configuration = get_configuration().expect("Failed to read configuration.");
-        let connection_string = configuration.database.connection_string();
-        let pool = DbPool::builder()
-            .build(r2d2::ConnectionManager::new(&connection_string))
-            .expect("Failed to connect to sqlite.");
+        let mut configuration = get_configuration().expect("Failed to read configuration.");
+        configuration.database.database_name = format!("assets/generated/{}", uuid::Uuid::new_v4().to_string());
+        let pool = configure_database(&configuration.database);
         let addr = serve(pool.clone()).await?;
 
         Ok(Self { addr, pool })
@@ -126,4 +127,16 @@ async fn serve(pool: DbPool) -> Result<SocketAddr, Box<dyn std::error::Error>> {
     });
 
     Ok(addr)
+}
+
+fn configure_database(config: &DatabaseSettings) -> DbPool {
+    let connection_string = config.connection_string();
+    let pool = DbPool::builder()
+        .build(r2d2::ConnectionManager::new(&connection_string))
+        .expect("Failed to connect to sqlite.");
+    let db_conn = pool.get().unwrap();
+    diesel_migrations::run_pending_migrations(&db_conn)
+        .expect("Failed to run migrations!");
+    pool
+
 }
