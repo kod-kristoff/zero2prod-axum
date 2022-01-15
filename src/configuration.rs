@@ -12,7 +12,7 @@ pub struct DatabaseSettings {
 
 impl DatabaseSettings {
     pub fn connection_string(&self) -> String {
-        format!("sqlite://{}.sqlite", self.database_name)
+        format!("{}.sqlite", self.database_name)
     }
 }
 
