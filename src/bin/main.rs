@@ -10,7 +10,7 @@ use zero2prod::{
 #[tokio::main]
 async fn main() { // -> Result<(), hyper::Error> {
     let subscriber = telemetry::get_subscriber(
-        "zero2prod".into(), "info".into()
+        "zero2prod".into(), "info".into(), std::io::stdout
     );
     telemetry::init_subscriber(subscriber);
 

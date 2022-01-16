@@ -94,6 +94,30 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
     } 
 }
 
+use zero2prod::telemetry::{get_subscriber, init_subscriber};
+use once_cell::sync::Lazy;
+
+static TRACING: Lazy<()> = Lazy::new(|| {
+    let default_filter_level = "info".to_string();
+    let subscriber_name = "test".to_string();
+
+    if std::env::var("TEST_LOG").is_ok() {
+        let subscriber = get_subscriber(
+            subscriber_name,
+            default_filter_level,
+            std::io::stdout,
+        );
+        init_subscriber(subscriber);
+    } else {
+        let subscriber = get_subscriber(
+            subscriber_name,
+            default_filter_level,
+            std::io::sink,
+        );
+        init_subscriber(subscriber);
+    };
+});
+
 struct Context {
     addr: SocketAddr,
     pool: DbPool,
@@ -101,6 +125,7 @@ struct Context {
 
 impl Context {
     async fn try_new() -> Result<Self, Box<dyn std::error::Error>> {
+        Lazy::force(&TRACING);
         let mut configuration = get_configuration().expect("Failed to read configuration.");
         configuration.database.database_name = format!("assets/generated/{}", uuid::Uuid::new_v4().to_string());
         let pool = configure_database(&configuration.database)
