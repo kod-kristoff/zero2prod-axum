@@ -22,7 +22,15 @@ pub async fn run(
 
     // let shared_pool = Arc::new(db_pool);
     let middleware_stack = ServiceBuilder::new()
-        .layer(TraceLayer::new_for_http());
+        .layer(
+            TraceLayer::new_for_http()
+                .make_span_with(|_request: &http::Request<hyper::Body>| {
+                    tracing::info_span!(
+                        "http-request",
+                        request_id = %uuid::Uuid::new_v4()
+                    )
+                })
+        );
     use axum::routing::{get, post};
     let app = Router::new()
         .route("/health_check", get(routes::health_check))
