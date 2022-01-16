@@ -1,12 +1,13 @@
 use axum::{
     extract::{Extension, Form},
 };
-use diesel::prelude::*;
+use chrono::Utc;
 use http::StatusCode;
+use tracing::Instrument;
+use uuid::Uuid;
+
 use crate::db::{
     DbPool,
-    models::{NewSubscriber},
-    sql_types::Uuid,
 };
 
 #[derive(serde::Deserialize)]
@@ -19,32 +20,34 @@ pub async fn subscribe(
     form: Form<Subscribe>,
     Extension(pool): Extension<DbPool>,
 ) -> StatusCode {
-    use crate::db::schema::subscriptions::dsl::*;
 
-    let request_id = uuid::Uuid::new_v4();
-    tracing::info!(
-        "request_id {} - Adding {} {} as a new subscriber",
-        request_id,
+    let request_id = Uuid::new_v4();
+    let request_span = tracing::info_span!(
+        "Adding a new subscriber",
+        %request_id,
+        subscriber_email = %form.email,
+        subscriber_name = %form.name
+    );
+    let _request_span_guard = request_span.enter();
+    let query_span = tracing::info_span!(
+        "Saving new subscriber details in the database"
+    );
+    let subscriber_id = Uuid::new_v4();
+    let subscribed_at = Utc::now();
+    match sqlx::query!(
+        r#"
+        INSERT INTO subscriptions (id, email, name, subscribed_at)
+        VALUES ($1, $2, $3, $4)
+        "#,
+        subscriber_id,
         form.email,
-        form.name
-    );
-    tracing::info!(
-        "request_id {} - Saving new subscriber details in the database",
-        request_id
-    );
-    let db_conn = pool.get().expect("Failed to get connection");
-    let new_subscriber = NewSubscriber {
-        id: Uuid::new_v4(),
-        email: &form.email,
-        name: &form.name,
-    };
-
-    let result = diesel::insert_into(subscriptions)
-        .values(&new_subscriber)
-        .execute(&db_conn);
-    match result {
-        Ok(res) => {
-            tracing::info!("request_id {} - New subscriber saved", request_id);
+        form.name,
+        subscribed_at)
+    .execute(&pool)
+    .instrument(query_span)
+    .await 
+    {
+        Ok(_) => {
             StatusCode::OK
         }
         Err(err) => {

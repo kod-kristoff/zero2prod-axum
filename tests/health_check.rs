@@ -1,12 +1,7 @@
 use std::{
     net::{SocketAddr, TcpListener},
 };
-use diesel::{
-    prelude::*,
-    r2d2,
-};
 use zero2prod::db::{
-    models::Subscriber,
     DbPool,
 };
 use zero2prod::configuration::{
@@ -56,10 +51,9 @@ async fn subscribe_returns_a_200_for_valid_form_data() {
     // Assert
     assert_eq!(response.status().as_u16(), 200);
 
-    let db_conn = ctx.pool.get().expect("Failed");
-    use zero2prod::db::schema::subscriptions::dsl::*;
-    let saved: Subscriber = subscriptions
-        .first(&db_conn)
+    let saved = sqlx::query!("SELECT email, name FROM subscriptions")
+        .fetch_one(&ctx.pool)
+        .await
         .expect("Failed to fetch saved subscription.");
     assert_eq!(saved.email, "ursula_le_guin@gmail.com");
     assert_eq!(saved.name, "le guin");
@@ -109,7 +103,8 @@ impl Context {
     async fn try_new() -> Result<Self, Box<dyn std::error::Error>> {
         let mut configuration = get_configuration().expect("Failed to read configuration.");
         configuration.database.database_name = format!("assets/generated/{}", uuid::Uuid::new_v4().to_string());
-        let pool = configure_database(&configuration.database);
+        let pool = configure_database(&configuration.database)
+            .await;
         let addr = serve(pool.clone()).await?;
 
         Ok(Self { addr, pool })
@@ -129,13 +124,19 @@ async fn serve(pool: DbPool) -> Result<SocketAddr, Box<dyn std::error::Error>> {
     Ok(addr)
 }
 
-fn configure_database(config: &DatabaseSettings) -> DbPool {
+async fn configure_database(config: &DatabaseSettings) -> DbPool {
+    use sqlx::migrate::MigrateDatabase;
+
     let connection_string = config.connection_string();
-    let pool = DbPool::builder()
-        .build(r2d2::ConnectionManager::new(&connection_string))
+    let _ = sqlx::Sqlite::create_database(&connection_string)
+        .await
+        .expect("Failed to create database");
+    let pool = DbPool::connect(&connection_string)
+        .await
         .expect("Failed to connect to sqlite.");
-    let db_conn = pool.get().unwrap();
-    diesel_migrations::run_pending_migrations(&db_conn)
+    sqlx::migrate!("./migrations")
+        .run(&pool)
+        .await
         .expect("Failed to run migrations!");
     pool
 

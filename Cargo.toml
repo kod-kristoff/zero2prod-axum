@@ -22,11 +22,23 @@ tower = "0.4.11"
 config = "0.11.0"
 chrono = { version = "0.4.19", features = ["serde"] }
 uuid = { version = "0.8.2", features = ["v4", "serde"] }
-diesel = { version = "1.4.8", features = ["sqlite", "chrono", "r2d2", "uuid"] }
-diesel_migrations = "1.4.0"
 tracing-subscriber = { version = "0.3.6", features = ["env-filter"] }
 tracing = "0.1.29"
 tower-http = { version = "0.2.0", features = ["trace"] }
+tracing-bunyan-formatter = "0.3.2"
+tracing-log = "0.1.2"
+
+[dependencies.sqlx]
+version = "0.5.10"
+features = [
+    "runtime-tokio-rustls",
+    "sqlite",
+    "macros",
+    "migrate",
+    "chrono",
+    "uuid",
+]
+default-features = false
 
 
 [dev-dependencies]
