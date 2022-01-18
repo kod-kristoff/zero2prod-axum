@@ -16,7 +16,6 @@ async fn main() { // -> Result<(), hyper::Error> {
 
     let configuration = get_configuration().expect("Failed to read configuration");
     let pool = DbPool::connect_lazy(&configuration.database.connection_string())
-        .await
         .expect("Failed to connect to sqlite");
     // TCP listener
     let address = format!(

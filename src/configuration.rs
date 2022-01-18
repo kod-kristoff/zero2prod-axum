@@ -46,6 +46,11 @@ pub fn get_configuration() -> Result<Settings, config::ConfigError> {
             .required(true)
     )?;
 
+    settings.merge(
+        config::Environment::with_prefix("app")
+            .separator("__")
+    )?;
+
     settings.try_into()
 }
 
