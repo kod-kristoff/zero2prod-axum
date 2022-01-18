@@ -15,12 +15,16 @@ async fn main() { // -> Result<(), hyper::Error> {
     telemetry::init_subscriber(subscriber);
 
     let configuration = get_configuration().expect("Failed to read configuration");
-    let pool = DbPool::connect(&configuration.database.connection_string())
+    let pool = DbPool::connect_lazy(&configuration.database.connection_string())
         .await
         .expect("Failed to connect to sqlite");
     // TCP listener
-    let addr = SocketAddr::from(([127, 0, 0, 1], configuration.app_port));
-    let listener = TcpListener::bind(&addr).unwrap();
-    tracing::info!("listening on {}", addr);
+    let address = format!(
+        "{}:{}", 
+        configuration.application.host,
+        configuration.application.port,
+    );
+    let listener = TcpListener::bind(&address).unwrap();
+    tracing::info!("listening on {}", address);
     startup::run(listener, pool).await.unwrap()
 }

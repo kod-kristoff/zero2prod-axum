@@ -37,6 +37,7 @@ features = [
     "migrate",
     "chrono",
     "uuid",
+    "offline",
 ]
 default-features = false
 
