@@ -1,7 +1,6 @@
 use axum::extract::{Extension, Form};
 use chrono::Utc;
 use http::StatusCode;
-use tracing::Instrument;
 use uuid::Uuid;
 
 use crate::db::DbPool;

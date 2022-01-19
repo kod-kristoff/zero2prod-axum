@@ -1,4 +1,4 @@
-use std::net::{SocketAddr, TcpListener};
+use std::net::TcpListener;
 
 use zero2prod::{configuration::get_configuration, db::DbPool, startup, telemetry};
 
