@@ -1,14 +1,10 @@
-use axum::{
-    extract::{Extension, Form},
-};
+use axum::extract::{Extension, Form};
 use chrono::Utc;
 use http::StatusCode;
 use tracing::Instrument;
 use uuid::Uuid;
 
-use crate::db::{
-    DbPool,
-};
+use crate::db::DbPool;
 
 #[derive(serde::Deserialize)]
 pub struct Subscribe {
@@ -24,14 +20,10 @@ pub struct Subscribe {
         subscriber_name = %form.name
     )
 )]
-pub async fn subscribe(
-    form: Form<Subscribe>,
-    Extension(pool): Extension<DbPool>,
-) -> StatusCode {
-
+pub async fn subscribe(form: Form<Subscribe>, Extension(pool): Extension<DbPool>) -> StatusCode {
     match insert_subscriber(&form, &pool).await {
         Ok(_) => StatusCode::OK,
-        Err(_) => StatusCode::INTERNAL_SERVER_ERROR
+        Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
     }
 }
 
@@ -39,11 +31,7 @@ pub async fn subscribe(
     name = "Saving new subscriber details in the database",
     skip(form, pool)
 )]
-pub async fn insert_subscriber(
-    form: &Subscribe,
-    pool: &DbPool,
-) -> Result<(), sqlx::Error> {
-
+pub async fn insert_subscriber(form: &Subscribe, pool: &DbPool) -> Result<(), sqlx::Error> {
     let subscriber_id = Uuid::new_v4();
     let subscribed_at = Utc::now();
     sqlx::query!(

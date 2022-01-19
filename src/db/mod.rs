@@ -3,5 +3,3 @@
 // pub mod sql_types;
 
 pub type DbPool = sqlx::sqlite::SqlitePool;
-
-
