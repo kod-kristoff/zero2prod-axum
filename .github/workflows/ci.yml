@@ -22,7 +22,7 @@ jobs:
     env:
       SQLX_VERSION: 0.5.10
       SQLX_DB: postgres
-      SQLX_RUNTIME: runtime-tokio-rustls
+      SQLX_RUNTIME: rustls
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -107,7 +107,7 @@ jobs:
     env:
       SQLX_VERSION: 0.5.10
       SQLX_DB: postgres
-      SQLX_RUNTIME: runtime-tokio-rustls
+      SQLX_RUNTIME: rustls
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -164,7 +164,7 @@ jobs:
     env:
       SQLX_VERSION: 0.5.10
       SQLX_DB: postgres
-      SQLX_RUNTIME: runtime-tokio-rustls
+      SQLX_RUNTIME: rustls
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
