@@ -21,7 +21,8 @@ jobs:
           - 5432:5432
     env:
       SQLX_VERSION: 0.5.10
-      SQLX_FEATURES: postgres,runtime-tokio-rustls
+      SQLX_DB: postgres
+      SQLX_RUNTIME: runtime-tokio-rustls
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -50,7 +51,7 @@ jobs:
           path: |
             ~/.cargo/bin/sqlx
             ~/.cargo/bin/cargo-sqlx
-          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_RUNTIME }}-${{ env.SQLX_DB }}
 
       - name: Install sqlx-cli
         uses: actions-rs/cargo@v1
@@ -61,7 +62,7 @@ jobs:
             sqlx-cli
             --force
             --version=${{ env.SQLX_VERSION }}
-            --features=${{ env.SQLX_FEATURES }}
+            --features=${{ env.SQLX_DB }},${{ env.SQLX_RUNTIME }}
             --no-default-features
             --locked
       - name: Migrate database
@@ -105,7 +106,8 @@ jobs:
           - 5432:5432
     env:
       SQLX_VERSION: 0.5.10
-      SQLX_FEATURES: postgres,runtime-tokio-rustls
+      SQLX_DB: postgres
+      SQLX_RUNTIME: runtime-tokio-rustls
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -123,7 +125,7 @@ jobs:
         with:
           path: |
             ~/.cargo/bin/sqlx
-          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_RUNTIME }}-${{ env.SQLX_DB }}
 
       - name: Install sqlx-cli
         uses: actions-rs/cargo@v1
@@ -134,7 +136,7 @@ jobs:
             sqlx-cli
             --force
             --version=${{ env.SQLX_VERSION }}
-            --features=${{ env.SQLX_FEATURES }}
+            --features=${{ env.SQLX_DB }},${{ env.SQLX_RUNTIME }}
             --no-default-features
             --locked
       - name: Migrate database
@@ -161,7 +163,8 @@ jobs:
           - 5432:5432
     env:
       SQLX_VERSION: 0.5.10
-      SQLX_FEATURES: postgres,runtime-tokio-rustls
+      SQLX_DB: postgres
+      SQLX_RUNTIME: runtime-tokio-rustls
     steps:
       - name: Checkout repository
         uses: actions/checkout@v2
@@ -178,7 +181,7 @@ jobs:
         with:
           path: |
             ~/.cargo/bin/sqlx
-          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_FEATURES }}
+          key: ${{ runner.os }}-sqlx-${{ env.SQLX_VERSION }}-${{ env.SQLX_RUNTIME }}-${{ env.SQLX_DB }}
 
       - name: Install sqlx-cli
         uses: actions-rs/cargo@v1
@@ -189,7 +192,7 @@ jobs:
             sqlx-cli
             --force
             --version=${{ env.SQLX_VERSION }}
-            --features=${{ env.SQLX_FEATURES }}
+            --features=${{ env.SQLX_DB }},${{ env.SQLX_RUNTIME }}
             --no-default-features
             --locked
       - name: Migrate database
