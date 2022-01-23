@@ -18,9 +18,9 @@ Cargo.lock
 *.sqlite*
 
 # Configuration file
-/configuration/*
-!/configuration/*.template
-.env
+#/configuration/*
+#!/configuration/*.template
+#.env
 
 # Test files
 assets/generated/*
