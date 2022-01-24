@@ -28,7 +28,7 @@ tower-http = { version = "0.2.0", features = ["trace"] }
 tracing-bunyan-formatter = "0.3.2"
 tracing-log = "0.1.2"
 serde-aux = "3.0.1"
-secrecy = "0.8.0"
+secrecy = { version = "0.8.0", features = ["serde"]
 
 [dependencies.sqlx]
 version = "0.5.10"
