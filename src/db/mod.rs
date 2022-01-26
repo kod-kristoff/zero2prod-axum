@@ -2,4 +2,4 @@
 // pub mod schema;
 // pub mod sql_types;
 
-pub type DbPool = sqlx::sqlite::SqlitePool;
+pub type DbPool = sqlx::postgres::PgPool;

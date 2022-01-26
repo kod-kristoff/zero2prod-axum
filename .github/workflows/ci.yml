@@ -18,7 +18,7 @@ jobs:
           POSTGRES_PASSWORD: password
           POSTGRES_DB: postgres
         ports:
-          - 5432:5432
+          - 25432:5432
     env:
       SQLX_VERSION: 0.5.10
       SQLX_DB: postgres
@@ -202,4 +202,4 @@ jobs:
       - name: Run cargo-tarpaulin
         uses: actions-rs/tarpaulin@v0.1
         with:
-          args: '--ignore-tests --avoid-cfg-tarpaulin'
+          args: "--ignore-tests --avoid-cfg-tarpaulin"

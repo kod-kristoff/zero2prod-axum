@@ -1,5 +1,7 @@
 use std::net::TcpListener;
 
+use secrecy::ExposeSecret;
+
 use zero2prod::{configuration::get_configuration, db::DbPool, startup, telemetry};
 
 #[tokio::main]
@@ -9,7 +11,7 @@ async fn main() {
     telemetry::init_subscriber(subscriber);
 
     let configuration = get_configuration().expect("Failed to read configuration");
-    let pool = DbPool::connect_lazy(&configuration.database.connection_string())
+    let pool = DbPool::connect_lazy(&configuration.database.connection_string().expose_secret())
         .expect("Failed to connect to sqlite");
     // TCP listener
     let address = format!(
