@@ -1,4 +1,8 @@
 use std::net::{SocketAddr, TcpListener};
+
+use secrecy::ExposeSecret;
+use sqlx::{Connection, Executor};
+
 use zero2prod::configuration::{get_configuration, DatabaseSettings};
 use zero2prod::db::DbPool;
 
@@ -107,8 +111,7 @@ impl Context {
     async fn try_new() -> Result<Self, Box<dyn std::error::Error>> {
         Lazy::force(&TRACING);
         let mut configuration = get_configuration().expect("Failed to read configuration.");
-        configuration.database.database_name =
-            format!("assets/generated/{}", uuid::Uuid::new_v4().to_string());
+        configuration.database.database_name = uuid::Uuid::new_v4().to_string();
         let pool = configure_database(&configuration.database).await;
         let addr = serve(pool.clone()).await?;
 
@@ -130,11 +133,15 @@ async fn serve(pool: DbPool) -> Result<SocketAddr, Box<dyn std::error::Error>> {
 async fn configure_database(config: &DatabaseSettings) -> DbPool {
     use sqlx::migrate::MigrateDatabase;
 
-    let connection_string = config.connection_string();
-    let _ = sqlx::Sqlite::create_database(&connection_string)
+    let mut connection = sqlx::PgConnection::connect(&config.connection_string_without_db().expose_secret())
+        .await
+        .expect("Failed to connect to Postgres");
+    connection
+        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
         .await
         .expect("Failed to create database");
-    let pool = DbPool::connect(&connection_string)
+
+    let pool = DbPool::connect(&config.connection_string().expose_secret())
         .await
         .expect("Failed to connect to sqlite.");
     sqlx::migrate!("./migrations")
