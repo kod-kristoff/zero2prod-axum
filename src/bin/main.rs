@@ -13,8 +13,7 @@ async fn main() {
     let configuration = get_configuration().expect("Failed to read configuration");
     let pool = PgPoolOptions::new()
         .connect_timeout(std::time::Duration::from_secs(2))
-        .connect_lazy_with(configuration.database.with_db())
-        .expect("Failed to connect to sqlite");
+        .connect_lazy_with(configuration.database.with_db());
     // TCP listener
     let address = format!(
         "{}:{}",
