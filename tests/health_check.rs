@@ -1,7 +1,7 @@
 use std::net::{SocketAddr, TcpListener};
 
 use secrecy::ExposeSecret;
-use sqlx::{Connection, Executor};
+use sqlx::{Connection, Executor, PgConnection};
 
 use zero2prod::configuration::{get_configuration, DatabaseSettings};
 use zero2prod::db::DbPool;
@@ -133,17 +133,19 @@ async fn serve(pool: DbPool) -> Result<SocketAddr, Box<dyn std::error::Error>> {
 async fn configure_database(config: &DatabaseSettings) -> DbPool {
     use sqlx::migrate::MigrateDatabase;
 
-    let mut connection = sqlx::PgConnection::connect(&config.connection_string_without_db().expose_secret())
+    // Create database
+    let connection = PgConnection::connect_with(&config.without_db()
         .await
-        .expect("Failed to connect to Postgres");
+        .expect("Failed to connect");
     connection
-        .execute(format!(r#"CREATE DATABASE "{}";"#, config.database_name).as_str())
+        .execute(format!(r#"CREATE DATABASE {};"#, config.database.database_name))
         .await
         .expect("Failed to create database");
 
-    let pool = DbPool::connect(&config.connection_string().expose_secret())
+    // Migrate database
+    let pool = DbPool::connect_with(config.with_db())
         .await
-        .expect("Failed to connect to sqlite.");
+        .expect("Failed to connect to Postgres.");
     sqlx::migrate!("./migrations")
         .run(&pool)
         .await
