@@ -134,7 +134,7 @@ async fn configure_database(config: &DatabaseSettings) -> DbPool {
     use sqlx::migrate::MigrateDatabase;
 
     // Create database
-    let connection = PgConnection::connect_with(&config.without_db()
+    let connection = PgConnection::connect_with(&config.without_db())
         .await
         .expect("Failed to connect");
     connection
