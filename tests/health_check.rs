@@ -1,7 +1,7 @@
 use std::net::{SocketAddr, TcpListener};
 
 use secrecy::ExposeSecret;
-use sqlx::{Connection, Executor, PgConnection};
+use sqlx::{Connection, Executor, postgres::PgConnection};
 
 use zero2prod::configuration::{get_configuration, DatabaseSettings};
 use zero2prod::db::DbPool;
