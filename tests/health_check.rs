@@ -1,7 +1,7 @@
 use std::net::{SocketAddr, TcpListener};
 
 use secrecy::ExposeSecret;
-use sqlx::{Connection, Executor, postgres::PgConnection};
+use sqlx::{postgres::PgConnection, Connection, Executor};
 
 use zero2prod::configuration::{get_configuration, DatabaseSettings};
 use zero2prod::db::DbPool;
@@ -138,7 +138,10 @@ async fn configure_database(config: &DatabaseSettings) -> DbPool {
         .await
         .expect("Failed to connect");
     connection
-        .execute(format!(r#"CREATE DATABASE {};"#, config.database.database_name))
+        .execute(format!(
+            r#"CREATE DATABASE {};"#,
+            config.database.database_name
+        ))
         .await
         .expect("Failed to create database");
 
