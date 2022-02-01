@@ -145,6 +145,7 @@ jobs:
           SKIP_DOCKER=true ./scripts/init_db.sh
       - name: Run clippy
         uses: actions-rs/clippy-check@v1
+        continue-on-error: true
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: -- -D warnings
@@ -203,3 +204,8 @@ jobs:
         uses: actions-rs/tarpaulin@v0.1
         with:
           args: "--ignore-tests --avoid-cfg-tarpaulin"
+
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v2
+        with:
+          token: ${{ secrets.CODECOV_TOKEM }}
