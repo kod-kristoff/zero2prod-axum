@@ -30,6 +30,7 @@ tracing-log = "0.1.2"
 serde-aux = "3.0.1"
 secrecy = { version = "0.8.0", features = ["serde"] }
 unicode-segmentation = "1.9.0"
+validator = "0.14.0"
 
 [dependencies.sqlx]
 version = "0.5.10"
