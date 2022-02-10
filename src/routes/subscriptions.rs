@@ -5,13 +5,23 @@ use uuid::Uuid;
 
 use crate::{
     db::DbPool,
-    domain::{NewSubscriber, SubscriberName},
+    domain::{NewSubscriber, SubscriberEmail, SubscriberName},
 };
 
 #[derive(serde::Deserialize)]
 pub struct Subscribe {
     email: String,
     name: String,
+}
+
+impl TryFrom<Subscribe> for NewSubscriber {
+    type Error = String;
+
+    fn try_from(value: Subscribe) -> Result<Self, Self::Error> {
+        let name = SubscriberName::parse(value.name)?;
+        let email = SubscriberEmail::parse(value.email)?;
+        Ok(Self { email, name })
+    }
 }
 
 #[tracing::instrument(
@@ -26,13 +36,9 @@ pub async fn subscribe(
     form: Form<Subscribe>,
     Extension(pool): Extension<DbPool>
 ) -> StatusCode {
-    let name = match SubscriberName::parse(form.0.name) {
-        Ok(name) => name,
+    let new_subscriber = match form.0.try_into() {
+        Ok(form) => form,
         Err(_) => return StatusCode::BAD_REQUEST,
-    };
-    let new_subscriber = NewSubscriber {
-        email: form.0.email,
-        name,
     };
     match insert_subscriber(&pool, &new_subscriber).await {
         Ok(_) => StatusCode::OK,
