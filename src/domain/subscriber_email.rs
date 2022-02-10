@@ -1,7 +1,5 @@
-
 #[derive(Debug)]
 pub struct SubscriberEmail(String);
-
 
 impl SubscriberEmail {
     pub fn parse(s: String) -> Result<Self, String> {
@@ -22,10 +20,7 @@ impl AsRef<str> for SubscriberEmail {
 #[cfg(test)]
 mod tests {
     use super::SubscriberEmail;
-    use fake::{
-        faker::internet::en::SafeEmail,
-        Fake,
-    };
+    use fake::{faker::internet::en::SafeEmail, Fake};
 
     #[test]
     fn empty_string_is_rejected() {

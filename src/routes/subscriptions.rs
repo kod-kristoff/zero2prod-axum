@@ -32,10 +32,7 @@ impl TryFrom<Subscribe> for NewSubscriber {
         subscriber_name = %form.name
     )
 )]
-pub async fn subscribe(
-    form: Form<Subscribe>,
-    Extension(pool): Extension<DbPool>
-) -> StatusCode {
+pub async fn subscribe(form: Form<Subscribe>, Extension(pool): Extension<DbPool>) -> StatusCode {
     let new_subscriber = match form.0.try_into() {
         Ok(form) => form,
         Err(_) => return StatusCode::BAD_REQUEST,
@@ -52,7 +49,7 @@ pub async fn subscribe(
 )]
 pub async fn insert_subscriber(
     pool: &DbPool,
-    new_subscriber: &NewSubscriber
+    new_subscriber: &NewSubscriber,
 ) -> Result<(), sqlx::Error> {
     sqlx::query!(
         r#"

@@ -45,7 +45,6 @@ impl DatabaseSettings {
         let mut options = self.without_db().database(&self.database_name);
         options.log_statements(tracing::log::LevelFilter::Trace);
         options
-
     }
 
     pub fn connection_string_without_db(&self) -> Secret<String> {

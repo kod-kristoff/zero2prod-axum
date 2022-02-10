@@ -12,7 +12,7 @@ impl SubscriberName {
     pub fn parse(s: String) -> Result<Self, String> {
         let is_empty_or_whitespace = s.trim().is_empty();
         let is_too_long = s.graphemes(true).count() > 256;
-        
+
         let forbidden_characters = vec!['/', '(', ')', '"', '<', '>', '\\', '{', '}'];
         let contains_forbidden_characters = s.chars().any(|g| forbidden_characters.contains(&g));
         if is_empty_or_whitespace || is_too_long || contains_forbidden_characters {
@@ -28,7 +28,6 @@ impl AsRef<str> for SubscriberName {
         &self.0
     }
 }
-
 
 #[cfg(test)]
 mod tests {
@@ -53,21 +52,21 @@ mod tests {
     }
 
     #[test]
-    fn empty_string_is_rejected() { 
+    fn empty_string_is_rejected() {
         let name = "".to_string();
         claim::assert_err!(SubscriberName::parse(name));
     }
 
     #[test]
     fn names_containing_an_invalid_character_are_rejected() {
-        for name in &['/', '(', ')', '"', '<', '>', '\\', '{', '}'] { 
+        for name in &['/', '(', ')', '"', '<', '>', '\\', '{', '}'] {
             let name = name.to_string();
             claim::assert_err!(SubscriberName::parse(name));
         }
     }
 
     #[test]
-    fn a_valid_name_is_parsed_successfully() { 
+    fn a_valid_name_is_parsed_successfully() {
         let name = "Ursula Le Guin".to_string();
         claim::assert_ok!(SubscriberName::parse(name));
     }
