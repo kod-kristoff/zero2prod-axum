@@ -44,14 +44,15 @@ mod tests {
     struct ValidEmailFixture(pub String);
 
     impl quickcheck::Arbitrary for ValidEmailFixture {
-        fn arbitrary<G: quickcheck::Gen>(g: &mut G) -> Self {
-            let email = SafeEmail().fake_with_rng(g);
+        fn arbitrary(_g: &mut quickcheck::Gen) -> Self {
+            // workaround, use g if quickcheck exposes
+            let email = SafeEmail().fake();
             Self(email)
         }
     }
 
     #[quickcheck_macros::quickcheck]
     fn valid_emails_are_parsed_successfully(valid_email: ValidEmailFixture) -> bool {
-        SubscriberEmail::parse(valid_email).is_ok()
+        SubscriberEmail::parse(valid_email.0).is_ok()
     }
 }
