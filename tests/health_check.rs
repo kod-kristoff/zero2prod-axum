@@ -86,6 +86,39 @@ async fn subscribe_returns_a_400_when_data_is_missing() {
     }
 }
 
+#[tokio::test]
+async fn subscribe_returns_a_400_when_data_is_present_but_empty() {
+    // Arrange
+    let ctx = Context::try_new().await.expect("Failed to spawn app");
+
+    let client = reqwest::Client::new();
+
+    let test_cases = vec![
+        ("name=le%20guin&email=", "empty email"),
+        ("email=ursula_le_guin%40gmail.com&name=", "empty name"),
+        ("name=Ursula&email=not-an-email", "invalid email"),
+    ];
+    for (invalid_body, error_message) in test_cases {
+        // Act
+        let response = client
+            .post(&format!("http://{}/subscriptions", ctx.addr))
+            .header("Content-Type", "application/x-www-form-urlencoded")
+            .body(invalid_body)
+            .send()
+            .await
+            .expect("Failed to execute request.");
+
+        // Assert
+        assert_eq!(
+            response.status().as_u16(),
+            400,
+            // Additional customised error message on test failure
+            "The API did not fail with 400 BAD REQUEST when the payload was {}.",
+            error_message
+        );
+    }
+}
+
 use once_cell::sync::Lazy;
 use zero2prod::telemetry::{get_subscriber, init_subscriber};
 
