@@ -33,7 +33,7 @@ impl TryFrom<Subscribe> for NewSubscriber {
     )
 )]
 pub async fn subscribe(form: Form<Subscribe>, Extension(pool): Extension<DbPool>) -> StatusCode {
-    let new_subscriber = match form.0.try_into() {
+    let new_subscriber: NewSubscriber = match form.0.try_into() {
         Ok(form) => form,
         Err(_) => return StatusCode::BAD_REQUEST,
     };
