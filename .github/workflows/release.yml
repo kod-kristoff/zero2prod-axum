@@ -55,10 +55,10 @@ jobs:
 
       - name: Prepare archive
         run: |
-          strip target/release/hq
+          strip target/release/zero2prod-axum
           export ARCHIVE_NAME=zero2prod-axum-${{ env.INPUT_TAG }}-linux-x64.tar.gz
           echo "ARCHIVE_NAME=$ARCHIVE_NAME" >> $GITHUB_ENV
-          tar -czvf $ARCHIVE_NAME -C target/release hq
+          tar -czvf $ARCHIVE_NAME -C target/release zero2prod-axum
 
       - name: Create release
         id: create_release
